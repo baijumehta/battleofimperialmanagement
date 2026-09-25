@@ -2,7 +2,7 @@
   "name": "battleofimperial-planning",
   "version": "1.0.0",
   "private": true,
-  "description": "Volunteer and event organizing site for the Battle of Imperial lacrosse tournament",
+  "description": "Volunteer and event organizing site for the Battle on Imperial lacrosse tournament",
   "scripts": {
     "dev": "next dev",
     "build": "next build",

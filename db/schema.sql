@@ -1,8 +1,8 @@
--- Battle of Imperial planning database. Safe to re-run: every statement is idempotent.
+-- Battle on Imperial planning database. Safe to re-run: every statement is idempotent.
 
 CREATE TABLE IF NOT EXISTS event_settings (
   id              int PRIMARY KEY DEFAULT 1 CHECK (id = 1),
-  name            text NOT NULL DEFAULT 'Battle of Imperial Lacrosse Tournament',
+  name            text NOT NULL DEFAULT 'Battle on Imperial Lacrosse Tournament',
   event_date      date NOT NULL DEFAULT '2027-03-13',
   location        text NOT NULL DEFAULT '',
   buyout_amount   numeric(10,2) NOT NULL DEFAULT 200,

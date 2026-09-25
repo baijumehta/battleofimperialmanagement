@@ -1,4 +1,4 @@
-# Battle of Imperial: Tournament Organizer
+# Battle on Imperial: Tournament Organizer
 
 Volunteer and event management for the 3/13 lacrosse tournament. Built with Next.js, runs on Vercel, stores data in Neon Postgres.
 

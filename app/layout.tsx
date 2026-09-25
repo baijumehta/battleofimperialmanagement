@@ -2,8 +2,8 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Battle of Imperial",
-  description: "Volunteer sign-ups and organizing for the Battle of Imperial lacrosse tournament",
+  title: "Battle on Imperial",
+  description: "Volunteer sign-ups and organizing for the Battle on Imperial lacrosse tournament",
 };
 
 export const viewport: Viewport = { width: "device-width", initialScale: 1 };

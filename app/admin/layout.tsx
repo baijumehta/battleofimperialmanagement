@@ -12,7 +12,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       <header className="topbar">
         <div className="topbar-inner">
           <Link href="/admin" className="brand">
-            Battle of <span>Imperial</span>
+            Battle on <span>Imperial</span>
           </Link>
           <AdminNav />
           <div className="row">
