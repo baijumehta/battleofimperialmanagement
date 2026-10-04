@@ -4,20 +4,20 @@ Volunteer and event management for the 3/13 lacrosse tournament. Built with Next
 
 ## What's in it
 
-**Parent sign-up page (`/`, public).** Parents enter their info and pick one or more shifts, or choose the buy-out. Full shifts can't be picked. If a parent signs up again with the same email, the new shifts go on their existing record.
+**Volunteer sign-up page (`/`, public).** Volunteering is optional. Parents and siblings of players, high school students earning volunteer hours, and other community volunteers say who they are, enter their contact info, and pick one or more shifts. Students also give their school and grade. Full shifts can't be picked. If someone signs up again with the same email, the new shifts go on their existing record.
 
 **Organizer area (`/admin`, needs the team password):**
 
 | Page | What it's for |
 |---|---|
-| Dashboard | Days to go, % of shift slots filled, buy-outs, eateries booked, money raised, shifts short on people, open tasks |
+| Dashboard | Days to go, % of shift slots filled, volunteers by type, eateries booked, money raised, shifts short on people, open tasks |
 | Shifts | Add and edit shifts by area (setup, concessions, swag tent…), set how many people each needs, assign an organizer lead. Each shift has a roster page with check-in, add/remove people, and print. |
-| Volunteers | Everyone who signed up. Filter by who's on a shift, who chose the buy-out, whose buy-out is unpaid, and who hasn't picked anything. Mark buy-outs paid. Download a CSV. |
+| Volunteers | Everyone who signed up. Filter by parents & siblings, high school students, students whose hours still need signing off, and people without a shift. Student hours come from the shifts they're checked in on, and you can mark their hours signed off. Download a CSV with hours. |
 | Eateries | Street-team tracker for give-back days: status, which organizer owns it, contact, estimated and actual $ |
 | Sponsors | Sponsors, vendor tents, food trucks (Manhattan Stitch Co is already in) |
 | Tasks | Team to-dos with an owner and due date |
 | Team | Add, edit, or deactivate organizers |
-| Settings | Event name, date, location, buy-out amount, sign-up page message, and a switch to open/close sign-ups |
+| Settings | Event name, date, location, sign-up page message, and a switch to open/close sign-ups |
 
 Starter data comes from Lydie's kickoff message: the five organizers, the 12 eateries (Juice It Up already booked), Manhattan Stitch Co, a first set of tasks, and a **draft** shift plan you can edit or delete.
 

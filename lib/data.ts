@@ -4,7 +4,6 @@ export type Settings = {
   name: string;
   event_date: Date;
   location: string;
-  buyout_amount: string;
   signup_message: string;
   signups_open: boolean;
 };

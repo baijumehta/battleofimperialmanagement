@@ -1,43 +1,45 @@
 import { ConfirmButton, SubmitButton } from "@/app/components/ConfirmButton";
 import { requireAdmin } from "@/lib/auth";
 import { sql } from "@/lib/db";
-import { getSettings } from "@/lib/data";
-import { money } from "@/lib/format";
-import { deleteVolunteer, saveVolunteer, toggleBuyoutPaid } from "../actions";
+import { VOLUNTEER_TYPES, VOLUNTEER_TYPE_SHORT, hours } from "@/lib/format";
+import { deleteVolunteer, saveVolunteer, toggleHoursSignedOff } from "../actions";
 
-type Filter = "all" | "shifts" | "buyout" | "unpaid" | "none";
+type Filter = "all" | "family" | "student" | "unsigned" | "none";
 
 export default async function VolunteersPage({ searchParams }: { searchParams: Promise<{ f?: Filter; q?: string }> }) {
   await requireAdmin();
   const { f = "all", q = "" } = await searchParams;
-  const [settings, rows] = await Promise.all([
-    getSettings(),
-    sql`SELECT v.*,
-          coalesce(string_agg(s.title, ', ' ORDER BY s.start_time), '') AS shift_titles,
-          count(s.id)::int AS shift_count
-        FROM volunteers v
-        LEFT JOIN signups su ON su.volunteer_id = v.id
-        LEFT JOIN shifts s ON s.id = su.shift_id
-        GROUP BY v.id
-        ORDER BY v.name`,
-  ]);
+  const rows = await sql`
+    SELECT v.*,
+      coalesce(string_agg(s.title, ', ' ORDER BY s.start_time), '') AS shift_titles,
+      count(s.id)::int AS shift_count,
+      coalesce(sum(extract(epoch FROM s.end_time - s.start_time) / 3600), 0)::float AS hours_scheduled,
+      coalesce(sum(extract(epoch FROM s.end_time - s.start_time) / 3600) FILTER (WHERE su.checked_in), 0)::float AS hours_worked
+    FROM volunteers v
+    LEFT JOIN signups su ON su.volunteer_id = v.id
+    LEFT JOIN shifts s ON s.id = su.shift_id
+    GROUP BY v.id
+    ORDER BY v.name`;
 
   const needle = q.toLowerCase();
   const list = rows.filter((v) => {
-    if (needle && ![v.name, v.email, v.phone, v.player_name, v.team].some((x: string) => x.toLowerCase().includes(needle)))
+    if (
+      needle &&
+      ![v.name, v.email, v.phone, v.player_name, v.team, v.school].some((x: string) => x.toLowerCase().includes(needle))
+    )
       return false;
-    if (f === "shifts") return v.shift_count > 0;
-    if (f === "buyout") return v.buyout;
-    if (f === "unpaid") return v.buyout && !v.buyout_paid;
-    if (f === "none") return v.shift_count === 0 && !v.buyout;
+    if (f === "family") return v.volunteer_type === "parent" || v.volunteer_type === "sibling";
+    if (f === "student") return v.volunteer_type === "student";
+    if (f === "unsigned") return v.volunteer_type === "student" && v.hours_worked > 0 && !v.hours_signed_off;
+    if (f === "none") return v.shift_count === 0;
     return true;
   });
 
   const filters: [Filter, string][] = [
     ["all", `All (${rows.length})`],
-    ["shifts", "Working a shift"],
-    ["buyout", "Buy-out"],
-    ["unpaid", "Buy-out unpaid"],
+    ["family", "Parents & siblings"],
+    ["student", "HS students"],
+    ["unsigned", "Hours to sign off"],
     ["none", "No shift yet"],
   ];
 
@@ -46,7 +48,9 @@ export default async function VolunteersPage({ searchParams }: { searchParams: P
       <div className="page-head">
         <div>
           <h1>Volunteers</h1>
-          <p className="muted">Everyone who signed up on the parent page, plus anyone you add here.</p>
+          <p className="muted">
+            Everyone who signed up, plus anyone you add here. Student hours count once they’re checked in on a shift roster.
+          </p>
         </div>
         <a className="btn ghost sm" href="/admin/volunteers/export">
           Download CSV
@@ -59,7 +63,7 @@ export default async function VolunteersPage({ searchParams }: { searchParams: P
             {text}
           </button>
         ))}
-        <input name="q" defaultValue={q} placeholder="Search name, player, team…" style={{ maxWidth: 260 }} />
+        <input name="q" defaultValue={q} placeholder="Search name, school, player…" style={{ maxWidth: 260 }} />
       </form>
 
       <section className="card">
@@ -69,8 +73,8 @@ export default async function VolunteersPage({ searchParams }: { searchParams: P
               <tr>
                 <th>Name</th>
                 <th>Contact</th>
-                <th>Player / team</th>
-                <th>Helping with</th>
+                <th>Connection</th>
+                <th>Shifts</th>
                 <th></th>
               </tr>
             </thead>
@@ -85,7 +89,10 @@ export default async function VolunteersPage({ searchParams }: { searchParams: P
               {list.map((v) => (
                 <tr key={v.id}>
                   <td>
-                    <strong>{v.name}</strong>
+                    <strong>{v.name}</strong>{" "}
+                    <span className={`badge ${v.volunteer_type === "student" ? "info" : ""}`}>
+                      {VOLUNTEER_TYPE_SHORT[v.volunteer_type]}
+                    </span>
                     {v.notes && (
                       <>
                         <br />
@@ -99,21 +106,29 @@ export default async function VolunteersPage({ searchParams }: { searchParams: P
                     {v.email && <a href={`mailto:${v.email}`}>{v.email}</a>}
                   </td>
                   <td>
-                    {v.player_name}
-                    {v.team && <small> · {v.team}</small>}
+                    {v.volunteer_type === "student" ? (
+                      v.school
+                    ) : (
+                      <>
+                        {v.player_name}
+                        {v.team && <small> · {v.team}</small>}
+                      </>
+                    )}
                   </td>
                   <td>
-                    {v.shift_titles && <div>{v.shift_titles}</div>}
-                    {v.buyout && (
-                      <form action={toggleBuyoutPaid} className="row" style={{ marginTop: 4 }}>
+                    {v.shift_titles ? <div>{v.shift_titles}</div> : <span className="badge bad">No shift yet</span>}
+                    {v.volunteer_type === "student" && v.shift_count > 0 && (
+                      <form action={toggleHoursSignedOff} className="row" style={{ marginTop: 4 }}>
                         <input type="hidden" name="id" value={v.id} />
-                        <span className={`badge ${v.buyout_paid ? "ok" : "warn"}`}>
-                          {money(settings.buyout_amount)} buy-out · {v.buyout_paid ? "paid" : "unpaid"}
+                        <span className={`badge ${v.hours_signed_off ? "ok" : v.hours_worked > 0 ? "warn" : ""}`}>
+                          {hours(v.hours_worked)} worked of {hours(v.hours_scheduled)}
+                          {v.hours_signed_off && " · signed off"}
                         </span>
-                        <button className="btn ghost sm">{v.buyout_paid ? "Mark unpaid" : "Mark paid"}</button>
+                        {(v.hours_worked > 0 || v.hours_signed_off) && (
+                          <button className="btn ghost sm">{v.hours_signed_off ? "Undo sign-off" : "Mark signed off"}</button>
+                        )}
                       </form>
                     )}
-                    {!v.shift_titles && !v.buyout && <span className="badge bad">Not assigned</span>}
                   </td>
                   <td style={{ minWidth: 70 }}>
                     <details className="edit">
@@ -157,12 +172,26 @@ function VolunteerFields({ v }: { v?: Record<string, any> }) {
         <input name="name" required defaultValue={v?.name} />
       </div>
       <div>
+        <label>Type</label>
+        <select name="volunteer_type" defaultValue={v?.volunteer_type ?? "parent"}>
+          {VOLUNTEER_TYPES.map(([k, t]) => (
+            <option key={k} value={k}>
+              {t}
+            </option>
+          ))}
+        </select>
+      </div>
+      <div>
         <label>Email</label>
         <input name="email" type="email" defaultValue={v?.email} />
       </div>
       <div>
         <label>Phone</label>
         <input name="phone" type="tel" defaultValue={v?.phone} />
+      </div>
+      <div>
+        <label>School & grade (students)</label>
+        <input name="school" defaultValue={v?.school} />
       </div>
       <div>
         <label>Player</label>
@@ -172,14 +201,9 @@ function VolunteerFields({ v }: { v?: Record<string, any> }) {
         <label>Team</label>
         <input name="team" defaultValue={v?.team} />
       </div>
-      <div className="field-full row">
-        <label className="check">
-          <input type="checkbox" name="buyout" defaultChecked={v?.buyout} /> Buy-out
-        </label>
-        <label className="check">
-          <input type="checkbox" name="buyout_paid" defaultChecked={v?.buyout_paid} /> Paid
-        </label>
-      </div>
+      <label className="check field-full">
+        <input type="checkbox" name="hours_signed_off" defaultChecked={v?.hours_signed_off} /> Student hours signed off
+      </label>
       <div className="field-full">
         <label>Notes</label>
         <textarea name="notes" defaultValue={v?.notes} />

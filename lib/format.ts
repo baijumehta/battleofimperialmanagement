@@ -33,6 +33,25 @@ export function daysUntil(d: Date | string) {
   return Math.round((target.getTime() - today.getTime()) / 86_400_000);
 }
 
+export const VOLUNTEER_TYPES = [
+  ["parent", "Parent / guardian of a player"],
+  ["sibling", "Sibling of a player"],
+  ["student", "High school student (volunteer hours)"],
+  ["other", "Other community volunteer"],
+] as const;
+
+export const VOLUNTEER_TYPE_SHORT: Record<string, string> = {
+  parent: "Parent",
+  sibling: "Sibling",
+  student: "HS student",
+  other: "Other",
+};
+
+export function hours(n: number | string) {
+  const h = Number(n);
+  return `${Number.isInteger(h) ? h : h.toFixed(1)} hr${h === 1 ? "" : "s"}`;
+}
+
 export const EATERY_STATUSES = [
   ["not_contacted", "Not contacted"],
   ["contacted", "Contacted"],

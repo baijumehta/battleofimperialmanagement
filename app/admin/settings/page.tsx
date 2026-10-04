@@ -21,20 +21,16 @@ export default async function SettingsPage() {
             <label>Date</label>
             <input name="event_date" type="date" required defaultValue={isoDate(s.event_date)} />
           </div>
-          <div>
-            <label>Buy-out amount ($)</label>
-            <input name="buyout_amount" type="number" min={0} step="1" defaultValue={Number(s.buyout_amount)} />
-          </div>
           <div className="field-full">
             <label>Location</label>
             <input name="location" defaultValue={s.location} placeholder="Fields / school name" />
           </div>
           <div className="field-full">
-            <label>Message on the parent sign-up page</label>
+            <label>Message on the volunteer sign-up page</label>
             <textarea name="signup_message" defaultValue={s.signup_message} />
           </div>
           <label className="check field-full">
-            <input type="checkbox" name="signups_open" defaultChecked={s.signups_open} /> Parent sign-ups are open
+            <input type="checkbox" name="signups_open" defaultChecked={s.signups_open} /> Volunteer sign-ups are open
           </label>
         </div>
         <div>

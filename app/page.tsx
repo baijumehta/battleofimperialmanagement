@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { getSettings, getShifts } from "@/lib/data";
-import { daysUntil, formatDate, money, timeRange } from "@/lib/format";
+import { daysUntil, formatDate, timeRange } from "@/lib/format";
 import { SignupForm } from "./SignupForm";
 
 export const dynamic = "force-dynamic";
@@ -25,7 +25,6 @@ export default async function SignupPage() {
         <p>{settings.signup_message}</p>
         {settings.signups_open ? (
           <SignupForm
-            buyoutLabel={money(settings.buyout_amount)}
             shifts={shifts.map((s) => ({
               id: s.id,
               area: s.area,

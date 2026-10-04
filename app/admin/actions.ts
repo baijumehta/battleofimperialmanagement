@@ -116,26 +116,27 @@ export async function saveVolunteer(fd: FormData) {
     phone: str(fd, "phone"),
     player: str(fd, "player_name"),
     team: str(fd, "team"),
-    buyout: bool(fd, "buyout"),
-    paid: bool(fd, "buyout_paid"),
+    type: str(fd, "volunteer_type") || "parent",
+    school: str(fd, "school"),
+    signedOff: bool(fd, "hours_signed_off"),
     notes: str(fd, "notes"),
   };
   if (id) {
     await sql`
       UPDATE volunteers SET name=${name}, email=${v.email}, phone=${v.phone}, player_name=${v.player},
-        team=${v.team}, buyout=${v.buyout}, buyout_paid=${v.paid}, notes=${v.notes}
+        team=${v.team}, volunteer_type=${v.type}, school=${v.school}, hours_signed_off=${v.signedOff}, notes=${v.notes}
       WHERE id=${id}`;
   } else {
     await sql`
-      INSERT INTO volunteers (name, email, phone, player_name, team, buyout, buyout_paid, notes)
-      VALUES (${name}, ${v.email}, ${v.phone}, ${v.player}, ${v.team}, ${v.buyout}, ${v.paid}, ${v.notes})`;
+      INSERT INTO volunteers (name, email, phone, player_name, team, volunteer_type, school, hours_signed_off, notes)
+      VALUES (${name}, ${v.email}, ${v.phone}, ${v.player}, ${v.team}, ${v.type}, ${v.school}, ${v.signedOff}, ${v.notes})`;
   }
   refresh();
 }
 
-export async function toggleBuyoutPaid(fd: FormData) {
+export async function toggleHoursSignedOff(fd: FormData) {
   await requireAdmin();
-  await sql`UPDATE volunteers SET buyout_paid = NOT buyout_paid WHERE id=${optId(fd, "id")}`;
+  await sql`UPDATE volunteers SET hours_signed_off = NOT hours_signed_off WHERE id=${optId(fd, "id")}`;
   refresh();
 }
 
@@ -254,7 +255,6 @@ export async function saveSettings(fd: FormData) {
       name=${str(fd, "name")},
       event_date=${str(fd, "event_date")},
       location=${str(fd, "location")},
-      buyout_amount=${num(fd, "buyout_amount", 200)},
       signup_message=${str(fd, "signup_message")},
       signups_open=${bool(fd, "signups_open")}
     WHERE id = 1`;

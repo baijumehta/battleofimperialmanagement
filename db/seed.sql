@@ -31,7 +31,7 @@ INSERT INTO sponsors (name, kind, status, owner_id, notes) VALUES
 INSERT INTO tasks (title, owner_id, notes) VALUES
   ('Schedule tournament team meeting (week after 10/1)', (SELECT id FROM organizers WHERE name = 'Lydie'), 'Lydie is free after State of the City on Thu 10/1'),
   ('Plan volunteer shift logistics', (SELECT id FROM organizers WHERE name = 'Baiju'), 'Shift list, areas, leads'),
-  ('Decide on the parent buy-out policy', NULL, 'Lydie suggested a $200 buy-out for families who can''t volunteer'),
+  ('Reach out to local high schools about volunteer hours', NULL, 'Students can earn service hours by working a shift'),
   ('Form a street team to book eatery give-back days for 3/13', NULL, 'See the Eateries page'),
   ('Follow up with Manhattan Stitch Co on swag tent sponsorship', (SELECT id FROM organizers WHERE name = 'Lydie'), '');
 

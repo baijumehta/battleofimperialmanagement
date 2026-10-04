@@ -4,7 +4,7 @@ import { ConfirmButton, SubmitButton } from "@/app/components/ConfirmButton";
 import { requireAdmin } from "@/lib/auth";
 import { sql } from "@/lib/db";
 import { getOrganizers, getShifts } from "@/lib/data";
-import { formatDate, timeRange } from "@/lib/format";
+import { VOLUNTEER_TYPE_SHORT, formatDate, timeRange } from "@/lib/format";
 import { addToShift, deleteShift, removeSignup, saveShift, toggleCheckIn } from "../../actions";
 import { ShiftFields } from "../ShiftFields";
 import { PrintButton } from "@/app/components/PrintButton";
@@ -15,7 +15,7 @@ export default async function ShiftDetail({ params }: { params: Promise<{ id: st
   const [shifts, organizers, roster, others] = await Promise.all([
     getShifts(),
     getOrganizers(),
-    sql`SELECT su.id, su.checked_in, v.id AS volunteer_id, v.name, v.email, v.phone, v.player_name, v.team
+    sql`SELECT su.id, su.checked_in, v.id AS volunteer_id, v.name, v.email, v.phone, v.player_name, v.team, v.volunteer_type, v.school
         FROM signups su JOIN volunteers v ON v.id = su.volunteer_id
         WHERE su.shift_id = ${id} ORDER BY v.name`,
     sql`SELECT id, name FROM volunteers
@@ -59,7 +59,7 @@ export default async function ShiftDetail({ params }: { params: Promise<{ id: st
                   <th>Here</th>
                   <th>Name</th>
                   <th>Contact</th>
-                  <th>Player / team</th>
+                  <th>Player / school</th>
                   <th className="no-print"></th>
                 </tr>
               </thead>
@@ -74,15 +74,24 @@ export default async function ShiftDetail({ params }: { params: Promise<{ id: st
                         </button>
                       </form>
                     </td>
-                    <td>{r.name}</td>
+                    <td>
+                      {r.name}{" "}
+                      <span className={`badge ${r.volunteer_type === "student" ? "info" : ""}`}>{VOLUNTEER_TYPE_SHORT[r.volunteer_type]}</span>
+                    </td>
                     <td>
                       {r.phone && <a href={`tel:${r.phone}`}>{r.phone}</a>}
                       {r.phone && r.email && <br />}
                       {r.email && <a href={`mailto:${r.email}`}>{r.email}</a>}
                     </td>
                     <td>
-                      {r.player_name}
-                      {r.team && <small> · {r.team}</small>}
+                      {r.volunteer_type === "student" ? (
+                        r.school
+                      ) : (
+                        <>
+                          {r.player_name}
+                          {r.team && <small> · {r.team}</small>}
+                        </>
+                      )}
                     </td>
                     <td className="num no-print">
                       <form action={removeSignup}>

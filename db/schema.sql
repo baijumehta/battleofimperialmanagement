@@ -5,8 +5,7 @@ CREATE TABLE IF NOT EXISTS event_settings (
   name            text NOT NULL DEFAULT 'Battle on Imperial Lacrosse Tournament',
   event_date      date NOT NULL DEFAULT '2027-03-13',
   location        text NOT NULL DEFAULT '',
-  buyout_amount   numeric(10,2) NOT NULL DEFAULT 200,
-  signup_message  text NOT NULL DEFAULT 'Every family helps make the tournament happen. Pick a shift below, or choose the buy-out option.',
+  signup_message  text NOT NULL DEFAULT 'We need volunteers to make the tournament happen! Parents and siblings of players are welcome, and high school students can earn volunteer hours. Pick one or more shifts below.',
   signups_open    boolean NOT NULL DEFAULT true
 );
 
@@ -40,11 +39,23 @@ CREATE TABLE IF NOT EXISTS volunteers (
   phone         text NOT NULL DEFAULT '',
   player_name   text NOT NULL DEFAULT '',
   team          text NOT NULL DEFAULT '',
-  buyout        boolean NOT NULL DEFAULT false,
-  buyout_paid   boolean NOT NULL DEFAULT false,
+  volunteer_type text NOT NULL DEFAULT 'parent'
+                 CHECK (volunteer_type IN ('parent','sibling','student','other')),
+  school        text NOT NULL DEFAULT '',
+  hours_signed_off boolean NOT NULL DEFAULT false,
   notes         text NOT NULL DEFAULT '',
   created_at    timestamptz NOT NULL DEFAULT now()
 );
+
+-- Oct 2026: the board dropped the mandatory parent buy-out and opened volunteering to
+-- siblings and high school students earning service hours.
+ALTER TABLE event_settings DROP COLUMN IF EXISTS buyout_amount;
+ALTER TABLE volunteers DROP COLUMN IF EXISTS buyout;
+ALTER TABLE volunteers DROP COLUMN IF EXISTS buyout_paid;
+ALTER TABLE volunteers ADD COLUMN IF NOT EXISTS volunteer_type text NOT NULL DEFAULT 'parent'
+  CHECK (volunteer_type IN ('parent','sibling','student','other'));
+ALTER TABLE volunteers ADD COLUMN IF NOT EXISTS school text NOT NULL DEFAULT '';
+ALTER TABLE volunteers ADD COLUMN IF NOT EXISTS hours_signed_off boolean NOT NULL DEFAULT false;
 
 CREATE TABLE IF NOT EXISTS signups (
   id            serial PRIMARY KEY,

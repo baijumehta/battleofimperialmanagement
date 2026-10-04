@@ -10,8 +10,8 @@ export default async function Dashboard() {
     getSettings(),
     getShifts(),
     sql`SELECT count(*)::int AS total,
-               count(*) FILTER (WHERE buyout)::int AS buyouts,
-               count(*) FILTER (WHERE buyout AND buyout_paid)::int AS paid
+               count(*) FILTER (WHERE volunteer_type IN ('parent','sibling'))::int AS family,
+               count(*) FILTER (WHERE volunteer_type = 'student')::int AS students
         FROM volunteers`,
     sql`SELECT count(*)::int AS total,
                count(*) FILTER (WHERE status = 'booked')::int AS booked,
@@ -35,7 +35,6 @@ export default async function Dashboard() {
   const pct = slots ? Math.round((filled / slots) * 100) : 0;
   const days = daysUntil(settings.event_date);
   const needs = shifts.filter((s) => s.filled < s.slots).sort((a, b) => a.filled / a.slots - b.filled / b.slots).slice(0, 6);
-  const buyoutTotal = Number(settings.buyout_amount) * vol.paid;
 
   return (
     <div className="stack">
@@ -65,13 +64,11 @@ export default async function Dashboard() {
         </div>
         <div className="card stat">
           <div className="value">{vol.total}</div>
-          <div className="label">Volunteer families</div>
+          <div className="label">Volunteers signed up ({vol.family} parents & siblings)</div>
         </div>
         <div className="card stat">
-          <div className="value">
-            {vol.paid}/{vol.buyouts}
-          </div>
-          <div className="label">Buy-outs paid ({money(buyoutTotal)})</div>
+          <div className="value">{vol.students}</div>
+          <div className="label">High school students</div>
         </div>
         <div className="card stat">
           <div className="value">
@@ -80,7 +77,7 @@ export default async function Dashboard() {
           <div className="label">Eateries booked ({eat.untouched} not contacted)</div>
         </div>
         <div className="card stat">
-          <div className="value">{money(Number(eat.actual) + Number(spon.amount) + buyoutTotal)}</div>
+          <div className="value">{money(Number(eat.actual) + Number(spon.amount))}</div>
           <div className="label">Raised so far</div>
         </div>
         <div className="card stat">

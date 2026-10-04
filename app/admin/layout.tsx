@@ -17,7 +17,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           <AdminNav />
           <div className="row">
             <Link href="/" className="btn ghost sm" target="_blank">
-              Parent sign-up page ↗
+              Volunteer sign-up page ↗
             </Link>
             <form action={logout}>
               <button className="btn ghost sm">Log out</button>
