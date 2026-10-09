@@ -4,6 +4,14 @@ export type Settings = {
   name: string;
   event_date: Date;
   location: string;
+  website: string;
+  contact_email: string;
+  contact_phone: string;
+  venue_address: string;
+  ambulance_access: string;
+  aed_locations: string;
+  medical_area: string;
+  shelter_location: string;
   signup_message: string;
   signups_open: boolean;
 };
@@ -47,4 +55,28 @@ export async function getShifts(): Promise<ShiftRow[]> {
     GROUP BY s.id, o.name
     ORDER BY s.shift_date, s.start_time, s.area, s.title`;
   return rows as ShiftRow[];
+}
+
+export type StaffRole = {
+  id: number;
+  sort: number;
+  role: string;
+  quantity: string;
+  report_time: string;
+  radio: string;
+  post: string;
+  scope: string;
+  assignee: string;
+  phone: string;
+  notes: string;
+};
+
+export async function getStaffRoles(): Promise<StaffRole[]> {
+  return (await sql`SELECT * FROM staff_roles ORDER BY sort, id`) as StaffRole[];
+}
+
+export type ChecklistItem = { id: number; list: "opening" | "midday" | "closing"; sort: number; item: string; done: boolean; done_at: Date | null };
+
+export async function getChecklist(): Promise<ChecklistItem[]> {
+  return (await sql`SELECT * FROM checklist_items ORDER BY list, sort, id`) as ChecklistItem[];
 }

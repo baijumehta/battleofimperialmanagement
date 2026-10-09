@@ -29,6 +29,8 @@ export default async function Dashboard() {
         ORDER BY t.due_date NULLS LAST, t.created_at
         LIMIT 8`,
   ]);
+  const [roles] = await sql`
+    SELECT count(*)::int AS total, count(*) FILTER (WHERE assignee <> '')::int AS filled FROM staff_roles`;
 
   const slots = shifts.reduce((n, s) => n + s.slots, 0);
   const filled = shifts.reduce((n, s) => n + Math.min(s.filled, s.slots), 0);
@@ -84,6 +86,12 @@ export default async function Dashboard() {
           <div className="value">{spon.confirmed}</div>
           <div className="label">Sponsors confirmed ({spon.pending} in progress)</div>
         </div>
+        <Link href="/admin/staffing" className="card stat" style={{ textDecoration: "none", color: "inherit" }}>
+          <div className="value">
+            {roles.filled}/{roles.total}
+          </div>
+          <div className="label">Lead roles assigned →</div>
+        </Link>
       </div>
 
       <div className="grid grid-2">

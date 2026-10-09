@@ -79,6 +79,7 @@ small, .muted { color: var(--muted); }
 }
 .nav a:hover { background: var(--surface-2); color: var(--text); }
 .nav a.active { background: var(--info-bg); color: var(--brand); font-weight: 600; }
+@media (min-width: 900px) { .nav { flex-wrap: wrap; overflow: visible; } }
 
 /* Cards & layout */
 .card {
@@ -164,7 +165,48 @@ details.edit[open] { background: var(--surface-2); border-radius: 8px; padding: 
 .shift-option input { margin-top: 0.25rem; }
 .shift-list { display: grid; gap: 0.5rem; }
 
+/* Day-of operations */
+.grid-3 { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+.chips { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+.chips a {
+  text-decoration: none; font-size: 0.85rem; padding: 0.3rem 0.7rem; border-radius: 999px;
+  border: 1px solid var(--border); background: var(--surface); color: var(--text);
+}
+.chips a:hover { border-color: var(--brand); color: var(--brand); }
+section[id] { scroll-margin-top: 72px; }
+.emergency { border: 2px solid var(--bad); background: var(--bad-bg); }
+.emergency h2 { color: var(--bad); }
+.facts { display: grid; gap: 0.5rem 1rem; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin: 0; }
+.facts.single { grid-template-columns: 1fr; }
+.facts dt { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.03em; color: var(--muted); font-weight: 600; }
+.facts dd { margin: 0; }
+tr.now td { background: var(--info-bg); }
+.checklist { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.25rem; }
+.check-btn {
+  display: flex; gap: 0.6rem; align-items: flex-start; width: 100%; text-align: left; cursor: pointer;
+  font: inherit; color: inherit; background: none; border: 0; padding: 0.35rem 0.25rem; border-radius: 6px;
+}
+.check-btn:hover { background: var(--surface-2); }
+.check-btn .box {
+  flex: none; width: 20px; height: 20px; border: 2px solid var(--border); border-radius: 5px;
+  display: grid; place-items: center; font-size: 0.8rem; font-weight: 700; margin-top: 1px;
+}
+.check-btn.done .box { background: var(--ok); border-color: var(--ok); color: var(--surface); }
+.check-btn.done span:last-child { color: var(--muted); text-decoration: line-through; }
+.checks { list-style: none; padding: 0; margin: 0; columns: 2 260px; }
+.checks li { margin-bottom: 0.25rem; break-inside: avoid; }
+details.proc > summary { cursor: pointer; font-weight: 700; font-size: 1.05rem; }
+details.proc[open] > summary { margin-bottom: 0.5rem; }
+.proc ul, .card > ul { margin: 0; padding-left: 1.2rem; }
+.proc li, .card > ul li { margin-bottom: 0.3rem; }
+.debrief { display: grid; gap: 0.4rem; }
+.alert.warn { background: var(--warn-bg); color: var(--warn); }
+.info-box { background: var(--info-bg); border-radius: var(--radius); padding: 1rem; }
+.info-box ul { margin: 0.25rem 0 0; padding-left: 1.2rem; }
+
 @media print {
+  tr.now td { background: none; }
+  .emergency { border-color: #000; background: none; }
   .topbar, .no-print { display: none !important; }
   body { background: #fff; color: #000; }
   .card { border: 0; box-shadow: none; padding: 0; }

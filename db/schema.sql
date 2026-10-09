@@ -105,3 +105,47 @@ CREATE TABLE IF NOT EXISTS tasks (
 
 CREATE INDEX IF NOT EXISTS signups_shift_idx ON signups(shift_id);
 CREATE INDEX IF NOT EXISTS signups_volunteer_idx ON signups(volunteer_id);
+
+-- Oct 2026: day-of operations and staffing, from Lydie's Event Operations Manual
+-- and Full Event Staffing & Scope of Work.
+ALTER TABLE event_settings
+  ADD COLUMN IF NOT EXISTS website          text NOT NULL DEFAULT '',
+  ADD COLUMN IF NOT EXISTS contact_email    text NOT NULL DEFAULT '',
+  ADD COLUMN IF NOT EXISTS contact_phone    text NOT NULL DEFAULT '',
+  ADD COLUMN IF NOT EXISTS venue_address    text NOT NULL DEFAULT '',
+  ADD COLUMN IF NOT EXISTS ambulance_access text NOT NULL DEFAULT '',
+  ADD COLUMN IF NOT EXISTS aed_locations    text NOT NULL DEFAULT '',
+  ADD COLUMN IF NOT EXISTS medical_area     text NOT NULL DEFAULT '',
+  ADD COLUMN IF NOT EXISTS shelter_location text NOT NULL DEFAULT '';
+
+-- Lead roles from the staffing plan; doubles as the day-of contact sheet.
+CREATE TABLE IF NOT EXISTS staff_roles (
+  id           serial PRIMARY KEY,
+  sort         int  NOT NULL DEFAULT 0,
+  role         text NOT NULL,
+  quantity     text NOT NULL DEFAULT '',
+  report_time  text NOT NULL DEFAULT '',
+  radio        text NOT NULL DEFAULT '',
+  post         text NOT NULL DEFAULT '',
+  scope        text NOT NULL DEFAULT '',
+  assignee     text NOT NULL DEFAULT '',
+  phone        text NOT NULL DEFAULT '',
+  notes        text NOT NULL DEFAULT ''
+);
+
+CREATE TABLE IF NOT EXISTS checklist_items (
+  id       serial PRIMARY KEY,
+  list     text NOT NULL CHECK (list IN ('opening','midday','closing')),
+  sort     int  NOT NULL DEFAULT 0,
+  item     text NOT NULL,
+  done     boolean NOT NULL DEFAULT false,
+  done_at  timestamptz
+);
+
+CREATE TABLE IF NOT EXISTS debrief_notes (
+  id      serial PRIMARY KEY,
+  sort    int  NOT NULL DEFAULT 0,
+  prompt  text NOT NULL,
+  notes   text NOT NULL DEFAULT '',
+  owner   text NOT NULL DEFAULT ''
+);

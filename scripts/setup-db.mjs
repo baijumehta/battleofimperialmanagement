@@ -20,10 +20,14 @@ try {
   const { rows } = await pool.query("SELECT count(*)::int AS n FROM organizers");
   if (rows[0].n === 0) {
     await pool.query(seed);
-    console.log("Loaded starter data (organizers, eateries, sponsor, tasks, draft shifts).");
+    console.log("Loaded starter data (organizers, eateries, sponsor, tasks).");
   } else {
     console.log("Organizers already exist, skipping starter data.");
   }
+
+  const ops = await readFile(new URL("../db/seed-ops.sql", import.meta.url), "utf8");
+  await pool.query(ops);
+  console.log("Day-of operations data is in place (fills in only what is missing).");
 } finally {
   await pool.end();
 }

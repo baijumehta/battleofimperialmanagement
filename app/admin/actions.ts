@@ -255,8 +255,73 @@ export async function saveSettings(fd: FormData) {
       name=${str(fd, "name")},
       event_date=${str(fd, "event_date")},
       location=${str(fd, "location")},
+      website=${str(fd, "website")},
+      contact_email=${str(fd, "contact_email")},
+      contact_phone=${str(fd, "contact_phone")},
+      venue_address=${str(fd, "venue_address")},
+      ambulance_access=${str(fd, "ambulance_access")},
+      aed_locations=${str(fd, "aed_locations")},
+      medical_area=${str(fd, "medical_area")},
+      shelter_location=${str(fd, "shelter_location")},
       signup_message=${str(fd, "signup_message")},
       signups_open=${bool(fd, "signups_open")}
     WHERE id = 1`;
+  refresh();
+}
+
+/* ---------- Staffing & day-of ---------- */
+
+export async function saveStaffRole(fd: FormData) {
+  await requireAdmin();
+  const id = optId(fd, "id");
+  const role = str(fd, "role");
+  if (!role) return;
+  const r = {
+    quantity: str(fd, "quantity"),
+    report: str(fd, "report_time"),
+    radio: str(fd, "radio"),
+    post: str(fd, "post"),
+    scope: str(fd, "scope"),
+    assignee: str(fd, "assignee"),
+    phone: str(fd, "phone"),
+    notes: str(fd, "notes"),
+  };
+  if (id) {
+    await sql`
+      UPDATE staff_roles SET role=${role}, quantity=${r.quantity}, report_time=${r.report}, radio=${r.radio},
+        post=${r.post}, scope=${r.scope}, assignee=${r.assignee}, phone=${r.phone}, notes=${r.notes}
+      WHERE id=${id}`;
+  } else {
+    await sql`
+      INSERT INTO staff_roles (sort, role, quantity, report_time, radio, post, scope, assignee, phone, notes)
+      VALUES ((SELECT coalesce(max(sort), 0) + 10 FROM staff_roles), ${role}, ${r.quantity}, ${r.report}, ${r.radio},
+        ${r.post}, ${r.scope}, ${r.assignee}, ${r.phone}, ${r.notes})`;
+  }
+  refresh();
+}
+
+export async function deleteStaffRole(fd: FormData) {
+  await requireAdmin();
+  await sql`DELETE FROM staff_roles WHERE id=${optId(fd, "id")}`;
+  refresh();
+}
+
+export async function toggleChecklistItem(fd: FormData) {
+  await requireAdmin();
+  await sql`
+    UPDATE checklist_items SET done = NOT done, done_at = CASE WHEN done THEN NULL ELSE now() END
+    WHERE id=${optId(fd, "id")}`;
+  refresh();
+}
+
+export async function resetChecklist(fd: FormData) {
+  await requireAdmin();
+  await sql`UPDATE checklist_items SET done = false, done_at = NULL WHERE list=${str(fd, "list")}`;
+  refresh();
+}
+
+export async function saveDebrief(fd: FormData) {
+  await requireAdmin();
+  await sql`UPDATE debrief_notes SET notes=${str(fd, "notes")}, owner=${str(fd, "owner")} WHERE id=${optId(fd, "id")}`;
   refresh();
 }
